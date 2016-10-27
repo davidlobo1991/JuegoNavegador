@@ -1,0 +1,23 @@
+index:
+  path: /
+  defaults: { _controller: JuegoBundle:Default:index }
+
+profile:
+  path: /profile
+  defaults: { _controller:  JuegoBundle:Default:perfil }
+
+aumentar:
+  path: /profile/aumentar
+  defaults: { _controller:  JuegoBundle:Default:aumentar }
+
+modificaciones:
+  path: /profile/modificar
+  defaults: { _controller: JuegoBundle:Default:modificaciones }
+
+tutorial:
+  path: /profile/tutorial
+  defaults: { _controller: JuegoBundle:Default:tutorial }
+
+tutorial_cambio:
+  path: /profile/tutorial/cambio
+  defaults: { _controller: JuegoBundle:Default:tutorial_cambio }

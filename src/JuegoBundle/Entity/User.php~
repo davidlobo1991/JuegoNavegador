@@ -1,0 +1,74 @@
+<?php
+
+namespace JuegoBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use FOS\UserBundle\Model\User as BaseUser;
+
+/**
+ * User
+ *
+ * @ORM\Table(name="fos_user")
+ * @ORM\Entity
+ */
+class User extends BaseUser
+{
+    /**
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Caracteristicas")
+     * @ORM\JoinColumn(name="caracteristicas_id", referencedColumnName="id")
+     */
+    protected $caracteristicas;
+
+
+    /**
+     * var integer
+     * @ORM\Column(name="tutorial", type="integer")
+     */
+    protected $tutorial;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set caracteristicas
+     *
+     * @param \JuegoBundle\Entity\Caracteristicas $caracteristicas
+     *
+     * @return User
+     */
+    public function setCaracteristicas(\JuegoBundle\Entity\Caracteristicas $caracteristicas = null)
+    {
+        $this->caracteristicas = $caracteristicas;
+
+        return $this;
+    }
+
+    /**
+     * Get caracteristicas
+     *
+     * @return \JuegoBundle\Entity\Caracteristicas
+     */
+    public function getCaracteristicas()
+    {
+        return $this->caracteristicas;
+    }
+}

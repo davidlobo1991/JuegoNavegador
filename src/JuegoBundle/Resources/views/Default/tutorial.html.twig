@@ -1,0 +1,17 @@
+{% spaceless %}
+        {% if user.tutorial == 0 %}
+           <span>Pagina tutorial 1</span>
+
+        {% elseif user.tutorial == 1 %}
+            <span>Pagina tutorial 2</span>
+
+        {% elseif user.tutorial == 2 %}
+            <span>Pagina tutorial 3</span>
+
+        {% elseif user.tutorial == 3 %}
+            <span>Fin del tutorial</span>
+
+        {% endif %}
+        <button class='siguiente'>Siguiente</button>
+
+{% endspaceless %}

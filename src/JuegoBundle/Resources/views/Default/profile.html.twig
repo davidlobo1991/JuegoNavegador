@@ -1,0 +1,108 @@
+{% extends "FOSUserBundle::layout.html.twig" %}
+
+{% block content %}
+    {% block fos_user_content %}
+        <p>Username: {{ user.username }}</p>
+        <p>Password: {{ user.email }}</p>
+        <p>Fuerza: <span class="caract">{{ caracteristicas[0].fuerza }} </span> <button class="aumentar" id="aum_fuerza" name="aum_fuerza" value="{{ caracteristicas[0].fuerza  }}">+</button>  <span class="timer"></span></p>
+        <p>Resistencia: <span class="caract"> {{ caracteristicas[0].resistencia }} </span> <button class="aumentar" name="aum_resistencia" id="aum_resistencia" value="{{ caracteristicas[0].resistencia }}">+</button>  <span class="timer"></span></p>
+
+        {% if user.tutorial < 3 %}
+            <div id="prueba_tutorial">
+                    {% include "JuegoBundle:Default:tutorial.html.twig" %}
+            </div>
+        {% endif %}
+
+        <script src="{{ asset('js/jquery-3.1.1.min.js') }}" type="text/javascript"></script>
+
+        <script>
+            $(document).ready(function() {
+                $('.aumentar').on('click', function(e) {
+                    e.preventDefault();
+                    var t = $(this);
+                    var span = $(this).parent().children('.timer');
+                    var end = new Date('10/27/2016 10:52:30');
+                    var _second = 1000;
+                    var _minute = _second * 60;
+                    var _hour = _minute * 60;
+                    var timer;
+                    //var _day = _hour * 24;
+
+                    $.ajax({
+                        method: "POST",
+                        url: "{{ url('modificaciones') }}",
+                        data: t,
+                        dataType: 'json',
+                        success: function (data) {
+                            var posts = JSON.parse(data.jetzt);
+                            var date = posts.timestamp;
+                            var formatted = new Date(date * 1000);
+                            var distance = end - formatted;
+
+                            function showRemaining(distance) {
+
+                                if (distance < 0) {
+                                    clearInterval(timer);
+
+                                    $.ajax({
+                                        method: "POST",
+                                        url: "{{ url('aumentar') }}",
+                                        data: t,
+                                        datatype: 'json',
+                                        success: function (data) {
+                                            newValue = data.caract;
+                                            var caract = t.parent().children('.caract');
+                                            caract.html(newValue);
+                                            t.parent().children('.timer').html("");
+                                            t.attr('value', newValue);
+                                            span.html("");
+                                        }
+                                    });
+
+                                    return;
+                                }
+
+                                function pad (str, max) {
+                                    str = str.toString();
+                                    return str.length < max ? pad("0" + str, max) : str;
+                                }
+
+                                var minutes = Math.floor((distance % _hour) / _minute);
+                                var seconds = Math.floor((distance % _minute) / _second);
+                                t.parent().children('.timer').html(pad(minutes, 2) + ' : ' + pad(seconds, 2));
+                            }
+
+                            timer = setInterval(function() {
+                                distance = Math.floor(distance - 1000);
+                                showRemaining(distance)
+                            }, 1000);
+                        }
+                    });
+                });
+
+
+                $(document).on('click', '.siguiente', function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        method: "post",
+                        dataType: "json",
+                        url: "{{ url('tutorial_cambio') }}",
+                        success: function(data) {
+                            var user = JSON.parse(data.user);
+                            var container = $('#prueba_tutorial');
+                            if (user.tutorial > 3) {
+                                container.remove();
+                            }
+                            else {
+                                container.html(data.html);
+                            }
+
+
+                        }
+                    });
+                });
+            });
+        </script>
+
+    {% endblock %}
+{% endblock %}
