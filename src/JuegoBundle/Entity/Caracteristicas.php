@@ -22,17 +22,16 @@ class Caracteristicas
     private $id;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="Fuerza", type="integer")
+     * @ORM\ManyToOne(targetEntity="Fuerza")
+     * @ORM\JoinColumn(name="fuerza", referencedColumnName="id")
      */
     private $fuerza;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="Resistencia", type="integer")
+     * @ORM\ManyToOne(targetEntity="Resistencia")
+     * @ORM\JoinColumn(name="resistencia", referencedColumnName="id" )
      */
+
     private $resistencia;
 
     /**
@@ -101,4 +100,60 @@ class Caracteristicas
      *
      * @return Caracteristicas
      */
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->fuerza = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->resistencia = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add fuerza
+     *
+     * @param \JuegoBundle\Entity\Fuerza $fuerza
+     *
+     * @return Caracteristicas
+     */
+    public function addFuerza(\JuegoBundle\Entity\Fuerza $fuerza)
+    {
+        $this->fuerza[] = $fuerza;
+
+        return $this;
+    }
+
+    /**
+     * Remove fuerza
+     *
+     * @param \JuegoBundle\Entity\Fuerza $fuerza
+     */
+    public function removeFuerza(\JuegoBundle\Entity\Fuerza $fuerza)
+    {
+        $this->fuerza->removeElement($fuerza);
+    }
+
+    /**
+     * Add resistencium
+     *
+     * @param \JuegoBundle\Entity\Resistencia $resistencium
+     *
+     * @return Caracteristicas
+     */
+    public function addResistencium(\JuegoBundle\Entity\Resistencia $resistencium)
+    {
+        $this->resistencia[] = $resistencium;
+
+        return $this;
+    }
+
+    /**
+     * Remove resistencium
+     *
+     * @param \JuegoBundle\Entity\Resistencia $resistencium
+     */
+    public function removeResistencium(\JuegoBundle\Entity\Resistencia $resistencium)
+    {
+        $this->resistencia->removeElement($resistencium);
+    }
 }

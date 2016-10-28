@@ -25,19 +25,24 @@ class DefaultController extends Controller
 
     public function perfilAction(Request $request)
     {
+        $em = $this->getDoctrine()->getManager();
+
         $username = $this->getUser()->getCaracteristicas();
-        $repository = $this
-            ->getDoctrine()
-            ->getManager()
+        $repository = $em
             ->getRepository('JuegoBundle:Caracteristicas')
             ->getCaracteristicas($username);
 
+        $modificaciones = $em
+            ->getRepository('JuegoBundle:Modificaciones')
+            ->findAll();
+
         $user = $this->getUser();
-        return $this->render('JuegoBundle:Default:profile.html.twig', array('user' => $user, 'caracteristicas' => $repository));
+        return $this->render('JuegoBundle:Default:profile.html.twig', array('user' => $user, 'caracteristicas' => $repository, 'modificaciones' => $modificaciones));
     }
 
     public function aumentarAction(Request $request)
     {
+        $em = $this->getDoctrine()->getManager();
         $response = "";
         $llave = "";
         $valor = "";
@@ -46,7 +51,6 @@ class DefaultController extends Controller
             $encoders = array(new JsonEncoder());
             $normalizers = array(new ObjectNormalizer());
             $serializer = new Serializer($normalizers, $encoders);
-
 
             $username = $this->getUser()->getCaracteristicas();
             $all = $request->request->all();
@@ -60,16 +64,23 @@ class DefaultController extends Controller
             $helper = strpos($llave, '_');
             $caractToModify = substr($llave, $helper + 1);
 
-            $repository = $this->getDoctrine()
-                ->getManager()
+            $repository = $em
                 ->getRepository('JuegoBundle:Caracteristicas')
                 ->updateCaracteristica($username, $caractToModify, $caract);
+
+            $borrar = $em
+                ->getRepository('JuegoBundle:Modificaciones')
+                ->getModificacion($this->getUser()->getId(), $caractToModify);
+
+            $em->remove($borrar);
+            $em->flush();
 
             $response = new JsonResponse();
             $response->setStatusCode(200);
             $response->setData(array(
                 'response' => 'success',
                 'repository' => $serializer->serialize($repository, 'json'),
+                'borrar' => $borrar,
                 'caract' => $caract,
                 'llave' => $caractToModify
             ));
@@ -83,6 +94,7 @@ class DefaultController extends Controller
         $encoders = array(new JsonEncoder());
         $normalizers = array(new ObjectNormalizer());
         $serializer = new Serializer($normalizers, $encoders);
+        $valor = "";
 
         if ($request->isXmlHttpRequest()) {
             $llave = "";
@@ -90,11 +102,17 @@ class DefaultController extends Controller
 
             foreach ($all as $key => $value) {
                 $llave = $key;
+                $valor = $value;
             }
 
             $helper = strpos($llave, '_');
             $caractToModify = substr($llave, $helper + 1);
             $fecha = new DateTime();
+
+            $tiempo = $this->getDoctrine()
+                ->getManager()
+                ->getRepository('JuegoBundle:'.$caractToModify)
+                ->find($valor);
 
             $modificacion = new Modificaciones();
             $modificacion->setValor($caractToModify);
@@ -104,20 +122,72 @@ class DefaultController extends Controller
             $em->persist($modificacion);
             $em->flush();
 
+            $duracion = $tiempo->getTiempo();
             $jetzt = $modificacion->getFecha();
+
+
 
             $response = new JsonResponse();
             $response->setStatusCode(200);
             $response->setData(array(
                 'response' => 'success',
                 'jetzt' => $serializer->serialize($jetzt, 'json'),
+                'end' => $serializer->serialize($duracion, 'json'),
             ));
-
             return $response;
         }
-
         return new Response("");
     }
+
+
+
+    public function modificacionesSeguidoAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $encoders = array(new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+        $serializer = new Serializer($normalizers, $encoders);
+        $valor = "";
+
+        if ($request->isXmlHttpRequest()) {
+            $llave = "";
+            $all = $request->request->all();
+
+            foreach ($all as $key => $value) {
+                $llave = $key;
+                $valor = $value;
+            }
+
+            $helper = strpos($llave, '_');
+            $caractToModify = substr($llave, $helper + 1);
+
+            $tiempo = $this->getDoctrine()
+                ->getManager()
+                ->getRepository('JuegoBundle:'.$caractToModify)
+                ->find($valor);
+
+            $tiempo_comienzo = $this->getDoctrine()
+                ->getManager()
+                ->getRepository('JuegoBundle:Modificaciones')
+                ->getModificacion($this->getUser()->getId(), $caractToModify);
+
+
+            $duracion = $tiempo->getTiempo();
+            $tiempo_comi = $tiempo_comienzo->getFecha();
+
+            $response = new JsonResponse();
+            $response->setStatusCode(200);
+            $response->setData(array(
+                'response' => 'success',
+                'fecha' => $serializer->serialize($tiempo_comi, 'json'),
+                'end' => $serializer->serialize($tiempo, 'json'),
+            ));
+            return $response;
+        }
+        return new Response("");
+    }
+
+
 
     public function tutorial_cambioAction(Request $request)
     {

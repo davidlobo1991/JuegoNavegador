@@ -13,7 +13,7 @@ class CaracteristicasRepository extends \Doctrine\ORM\EntityRepository
 	public function getCaracteristicas($id)
 	{
 		$query = $this->createQueryBuilder('c')
-			->select('c.fuerza', 'c.resistencia')
+			->select('(c.fuerza) as fuerza', '(c.resistencia) as resistencia')
 			->where('c.id = :id')
 			->setParameter('id', $id)
 			->getQuery();

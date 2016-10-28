@@ -10,4 +10,14 @@ namespace JuegoBundle\Repository;
  */
 class ModificacionesRepository extends \Doctrine\ORM\EntityRepository
 {
+	public function getModificacion($user, $accion) {
+		$query = $this->createQueryBuilder('m')
+			->where('m.valor = :accion')
+			->andWhere('m.User = :user')
+			->setParameter('accion', $accion)
+			->setParameter('user', $user)
+			->getQuery();
+
+		return $query->getOneOrNullResult();
+	}
 }

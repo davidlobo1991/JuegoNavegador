@@ -14,6 +14,11 @@ modificaciones:
   path: /profile/modificar
   defaults: { _controller: JuegoBundle:Default:modificaciones }
 
+modificaciones_seguido:
+  path: /profile/modificar/seguido
+  defaults: { _controller: JuegoBundle:Default:modificacionesSeguido }
+
+
 tutorial:
   path: /profile/tutorial
   defaults: { _controller: JuegoBundle:Default:tutorial }
